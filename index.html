@@ -15,7 +15,7 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Welcome to the Youtube Playlist Generator.</h1>
+        <h2>Welcome to the Youtube Playlist Generator.</h2>
         <p>
           The purpose of this playlist generator is to allow you to easily create playlists from a channel series that may not have one.
           The search can also be limited to a specific youtube channel to help limit wrong matches.
@@ -42,29 +42,26 @@
       </header>
       <section>
         <h3>Generate Playlist</h3>
-        <p>
-          <div id="login-container" class="pre-auth">This application requires access to your YouTube account.
-            Please <a href="#" id="login-link">authorize</a> to continue.
-          </div>
-          <div id="buttons">
-            <button id="playlist-button" disabled onclick="createPlaylist()">Create a new Private Playlist</button>
-            <br>
-            <label>Current Playlist Id: <input id="playlist-id" value='' type="text" readonly/></label>
-            <!-- <br>
-            <label>Video Id: <input id="video-id" value='' type="text"/></label><button onclick="addVideoToPlaylist()">Add to current playlist</button> -->
-            <br>
-            <label>Channel Id: <input id="channel-id" value='' type="text"/></label>(optional)
-            <br>
-            <label>Search: <input id="keywords" value='' type="text"/></label>
-            <br>
-            <button onclick="searchForVideos()">Add to current playlist</button>
-          </div>
-          <span>Playlist: <span id="playlist-title"></span></span>
-          <p id="playlist-description">No description yet.</p>
-          <div id="playlist-container">
-            <span id="status">No Videos</span>
-          </div>
-        </p>
+
+        <div id="login-container" class="pre-auth">This application requires access to your YouTube account.
+          Please <a href="#" id="login-link">authorize</a> to continue.
+        </div>
+        <div id="buttons">
+          <button id="playlist-button" disabled onclick="createPlaylist()">Create a new Private Playlist</button>
+          <br>
+          <label>Current Playlist Id: <input id="playlist-id" value='' type="text" readonly/></label>
+          <br>
+          <label>Channel Id: <input id="channel-id" value='' type="text"/></label>(optional)
+          <br>
+          <label>Search: <input id="keywords" value='' type="text"/></label>
+          <br>
+          <button onclick="searchForVideos()">Add to current playlist</button>
+        </div>
+        <span>Playlist: <span id="playlist-title"></span></span>
+        <p id="playlist-description">No description yet.</p>
+        <div id="playlist-container">
+          <span id="status">No Videos</span>
+        </div>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/Luxocracy">Luxocracy</a></p>
