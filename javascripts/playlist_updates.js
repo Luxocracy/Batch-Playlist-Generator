@@ -38,13 +38,26 @@ function createPlaylist() {
   });
 }
 
+function getChannelId(username, callback) {
+  var details = {
+    part: 'id',
+    forUsername: username
+  }
+  var request = gapi.client.youtube.channels.list(details);
+  request.execute(function(response) {
+    callback(response.items[0].id);
+  });
+}
+
 // Add a video ID specified in the form to the playlist.
 function searchForVideos() {
   if($('#keywords').val() === "" || $('#channel-id').val() === "") {
     console.error('All fields required.');
     return;
   }
-  videoSearch($('#keywords').val(), $('#channel-id').val());
+  getChannelId($('#channel-id').val(), function(channelId) {
+    videoSearch($('#keywords').val(), channelId);
+  });
 }
 
 function videoSearch(keywords, channelId) {
@@ -53,23 +66,44 @@ function videoSearch(keywords, channelId) {
     var details = {
       q: keywords,
       part: 'snippet',
+      type: 'video',
+      order: 'date',
       channelId: channelId,
-      maxResults: 5
+      maxResults: 50
     }
-    if(nextPageToken) details['nextPageToken'] = nextPageToken;
+    if(nextPageToken) details['pageToken'] = nextPageToken;
     var request = gapi.client.youtube.search.list(details);
     request.execute(function(response) {
-      result = result.concat(response.items)
-      // if(response.nextPageToken) {
-      //   query(response.nextPageToken);
-      // } else {
-        for(var i=0; i < result.length; i++) {
-          addVideoToPlaylist(result[i].id.videoId);
-        }
-      // }
+      for(var i=0; i < response.items.length; i++) {
+        if(!response.items[i].id.videoId) console.log(response.items[i]);
+        loopAddToPlaylist.add(response.items[i]);
+      }
+      if(response.nextPageToken) query(response.nextPageToken);
     });
   }
-  query();
+  query();  // First init
+}
+
+var loopAddToPlaylist = {
+  queue: [],
+  status: null,
+  add: function(item) {
+    this.queue.push(item);
+    if(!this.status) this.execute();
+  },
+  execute: function() {
+    this.status = 'working';
+    var video = this.queue.shift();
+    // console.log('Video ID:', video);
+    addToPlaylist(video.id.videoId, video.snippet, function() {
+      if(this.queue.length > 0) {
+        this.execute();
+      } else {
+        console.log('Ran out of video IDs while adding them to the playlist.');
+        this.status = null;
+      }
+    }.bind(this));
+  }
 }
 
 // Add a video ID specified in the form to the playlist.
@@ -80,16 +114,10 @@ function addVideoToPlaylist() {
 // Add a video to a playlist. The "startPos" and "endPos" values let you
 // start and stop the video at specific times when the video is played as
 // part of the playlist. However, these values are not set in this example.
-function addToPlaylist(id, startPos, endPos) {
+function addToPlaylist(videoId, videoSnippet, callback) {
   var details = {
-    videoId: id,
+    videoId: videoId,
     kind: 'youtube#video'
-  }
-  if (startPos != undefined) {
-    details['startAt'] = startPos;
-  }
-  if (endPos != undefined) {
-    details['endAt'] = endPos;
   }
   var request = gapi.client.youtube.playlistItems.insert({
     part: 'snippet',
@@ -101,6 +129,46 @@ function addToPlaylist(id, startPos, endPos) {
     }
   });
   request.execute(function(response) {
-    $('#status').html('<pre>' + JSON.stringify(response.result) + '</pre>');
+    var container   = $(document.querySelector('template').content).find('.yt-video').clone();
+    var channelName = videoSnippet.channelTitle;
+    var videoTitle  = videoSnippet.title;
+    var thumbnail   = videoSnippet.thumbnails.default;
+    var meta        = timeSince(new Date(videoSnippet.publishedAt));
+    var description = videoSnippet.description;
+    $(container).find('.yt-thumbnail').append('<img src="'+ thumbnail.url  +'" width="'+ thumbnail.width +'" height="'+ thumbnail.height +'">').end()
+    .find('.yt-title').append('<a href="https://www.youtube.com/watch?='+ videoId +'">'+ videoTitle +'</a>').end()
+    .find('.yt-channel').append('by <a href="https://www.youtube.com/user/'+ channelName +'">'+ channelName +'</a>').end()
+    .find('.yt-meta').append('<span>'+ meta +'</span>').end()
+    .find('.yt-description').append('<div>'+ description +'</div>');
+    $('#playlist-container').find('#status').remove().end().prepend(container)
+    // $('#status').html('<pre>' + JSON.stringify(response.result) + '</pre>');
+    callback(true);
   });
+}
+
+function timeSince(date) {
+  var seconds = Math.floor((new Date() - date) / 1000);
+  var interval = 0;
+
+  interval = Math.floor(seconds / 31536000);
+  if(interval > 1) {
+    return interval + " years ago";
+  }
+  interval = Math.floor(seconds / 2592000);
+  if(interval > 1) {
+    return interval + " months ago";
+  }
+  interval = Math.floor(seconds / 86400);
+  if(interval > 1) {
+    return interval + " days ago";
+  }
+  interval = Math.floor(seconds / 3600);
+  if(interval > 1) {
+    return interval + " hours ago";
+  }
+  interval = Math.floor(seconds / 60);
+  if(interval > 1) {
+    return interval + " minutes ago";
+  }
+  return Math.floor(seconds) + " seconds ago";
 }

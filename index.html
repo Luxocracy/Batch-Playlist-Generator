@@ -15,8 +15,21 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Batch-playlist-generator</h1>
-        <p>Youtube batch playlist generator</p>
+        <h1>Welcome to the Youtube Playlist Generator.</h1>
+        <p>
+          The purpose of this playlist generator is to allow you to easily create playlists from a channel series that may not have one.
+          The search can also be limited to a specific youtube channel to help limit wrong matches.
+        </p>
+
+        <h4>Why does this require access to my YouTube account?</h4>
+        <p>Quite simple, we need create a playlist that we can then add the videos to.</p>
+
+        <h4>Limitations & issues</h4>
+        There are some limitations because we are using the YouTube API:
+        <ul class="normal">
+           <li>The YouTube search is limited to 500 videos for a single search.</li>
+           <li>The search is not 100% accurate and may miss some videos or add unrelated ones, using quotations in your search usually limits these issues.</li>
+        </ul>
 
         <p class="view"><a href="https://github.com/Luxocracy/Batch-Playlist-Generator">View the Project on GitHub <small>Luxocracy/Batch-Playlist-Generator</small></a></p>
 
@@ -28,18 +41,6 @@
         </ul>
       </header>
       <section>
-        <h3>
-          <a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true">
-            <span aria-hidden="true" class="octicon octicon-link"></span>
-          </a>
-          Welcome to the Youtube Batch Playlist Generator.
-        </h3>
-
-        <p>Below is (or rather will be) a way of generating a playlist by matching the title to specific keywords entered below. This can also be limited to a specific youtube channel if you so wish.
-          You may also wonder why this requires access to your YouTube account. The reason is quite simple. There wouldn't be much point, that I see, in generating a playlist without being able to save it for later viewing.
-          Thge main reason for creating this was to be able to quickly put together a playlist from a channel series that may not have one.
-        </p>
-
         <h3>Generate Playlist</h3>
         <p>
           <div id="login-container" class="pre-auth">This application requires access to your YouTube account.
@@ -54,7 +55,7 @@
             <br>
             <label>Channel Id: <input id="channel-id" value='' type="text"/></label>(optional)
             <br>
-            <label>Keywords: <input id="keywords" value='' type="text"/></label>
+            <label>Search: <input id="keywords" value='' type="text"/></label>
             <br>
             <button onclick="searchForVideos()">Add to current playlist</button>
           </div>
@@ -72,9 +73,23 @@
     </div>
     <script src="javascripts/scale.fix.js"></script>
     <!-- Custom Scripts -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="javascripts/jquery-2.2.0.min.js"></script>
     <script src="javascripts/auth.js"></script>
     <script src="javascripts/playlist_updates.js"></script>
     <script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
+
+    <template>
+      <div class="yt-video">
+        <div class="yt-video-wrapper">
+          <div class="yt-thumbnail"></div>
+          <div class="yt-content">
+            <h3 class="yt-title"></h3>
+            <div class="yt-meta"></div>
+            <div class="yt-channel"></div>
+            <div class="yt-description"></div>
+          </div>
+        </div>
+      </div>
+    </template>
   </body>
 </html>

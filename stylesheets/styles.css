@@ -322,3 +322,51 @@ footer {
     color:#444;
   }
 }
+
+/* Custom CSS */
+h4 {
+  margin: 0;
+}
+
+ul.normal {
+  list-style: initial;
+  height: initial;
+  padding: initial;
+  background: initial;
+  border-radius: initial;
+  border: initial;
+  width: initial;
+  margin: 0px 0px 20px 20px;
+}
+
+ul.normal li {
+  width: initial;
+  float: initial;
+  border-right: initial;
+  height: initial;
+}
+
+.yt-video-wrapper {
+  white-space: nowrap;
+}
+
+.yt-video-wrapper > div {
+    display: inline-block;
+    position: relative;
+    white-space: normal;
+    height: 90px;
+    overflow: hidden;
+}
+
+.yt-title {
+    margin: 0px;
+}
+
+.yt-meta, .yt-channel, .yt-description {
+  font-size: 0.74rem;
+}
+
+.yt-meta, .yt-channel {
+    display: inline-block;
+    margin-right: 5px;
+}
