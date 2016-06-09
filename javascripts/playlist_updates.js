@@ -11,7 +11,7 @@ function enableForm() {
   $('#playlist-button').attr('disabled', false);
 }
 
-// Create a private playlist.
+// Create a playlist.
 function createPlaylist() {
   var request = gapi.client.youtube.playlists.insert({
     part: 'snippet,status',
@@ -36,6 +36,40 @@ function createPlaylist() {
       $('#status').html('Could not create playlist');
     }
   });
+}
+
+// Add a video ID specified in the form to the playlist.
+function searchForVideos() {
+  if($('#keywords').val() === "" || $('#channel-id').val() === "") {
+    console.error('All fields required.');
+    return;
+  }
+  videoSearch($('#keywords').val(), $('#channel-id').val());
+}
+
+function videoSearch(keywords, channelId) {
+  var result = [];
+  var query = function(nextPageToken) {
+    var details = {
+      q: keywords,
+      part: 'snippet',
+      channelId: channelId,
+      maxResults: 5
+    }
+    if(nextPageToken) details['nextPageToken'] = nextPageToken;
+    var request = gapi.client.youtube.search.list(details);
+    request.execute(function(response) {
+      result = result.concat(response.items)
+      // if(response.nextPageToken) {
+      //   query(response.nextPageToken);
+      // } else {
+        for(var i=0; i < result.length; i++) {
+          addVideoToPlaylist(result[i].id.videoId);
+        }
+      // }
+    });
+  }
+  query();
 }
 
 // Add a video ID specified in the form to the playlist.
