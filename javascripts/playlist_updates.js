@@ -13,15 +13,17 @@ function enableForm() {
 
 // Create a playlist.
 function createPlaylist() {
+  var title = $('#playlist-title').val();
+  var privacyStatus = ($('#playlist-private')[0].checked) ? 'private':'public';
   var request = gapi.client.youtube.playlists.insert({
     part: 'snippet,status',
     resource: {
       snippet: {
-        title: 'Test Playlist',
-        description: 'A private playlist created with the YouTube API'
+        title: title,
+        description: 'Playlist generated using the YouTube API via the "Youtube Series Playlist Generator"(https://luxocracy.github.io/YouTube-Series-Playlist-Generator)'
       },
       status: {
-        privacyStatus: 'private'
+        privacyStatus: privacyStatus
       }
     }
   });
@@ -56,24 +58,27 @@ function searchForVideos() {
     return;
   }
   getChannelId($('#channel-id').val(), function(channelId) {
-    videoSearch($('#keywords').val(), channelId);
+    videoSearch($('#keywords').val(), channelId, $('#limitToTitle')[0].checked);
   });
 }
 
-function videoSearch(keywords, channelId) {
+function videoSearch(keywords, channelId, titleOnly) {
   var result = [];
   var query = function(nextPageToken) {
     var details = {
-      q: keywords,
+      q: (titleOnly) ? 'allintitle:"'+ keywords +'"':keywords,
       part: 'snippet',
       type: 'video',
       order: 'date',
       channelId: channelId,
       maxResults: 50
     }
+
     if(nextPageToken) details['pageToken'] = nextPageToken;
+
     var request = gapi.client.youtube.search.list(details);
     request.execute(function(response) {
+      console.log(response);
       for(var i=0; i < response.items.length; i++) {
         if(!response.items[i].id.videoId) console.log(response.items[i]);
         loopAddToPlaylist.add(response.items[i]);

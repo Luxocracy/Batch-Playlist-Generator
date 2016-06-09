@@ -46,27 +46,35 @@
         <div id="login-container" class="pre-auth">This application requires access to your YouTube account.
           Please <a href="#" id="login-link">authorize</a> to continue.
         </div>
-        <div id="buttons">
-          <button id="playlist-button" disabled onclick="createPlaylist()">Create a new Private Playlist</button>
-          <br>
-          <label>Current Playlist Id: <input id="playlist-id" value='' type="text" readonly/></label>
-          <br>
-          <label>Channel Id: <input id="channel-id" value='' type="text"/></label>(optional)
-          <br>
-          <label>Search: <input id="keywords" value='' type="text"/></label>
-          <br>
-          <button onclick="searchForVideos()">Add to current playlist</button>
-        </div>
-        <span>Playlist: <span id="playlist-title"></span></span>
-        <p id="playlist-description">No description yet.</p>
-        <div id="playlist-container">
-          <span id="status">No Videos</span>
-        </div>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/Luxocracy">Luxocracy</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
+        <div class="post-auth" style="display: none">
+          <div id="buttons">
+            <label>Playlist Title: <input id="playlist-title" value='' type="text"/></label>
+            <br>
+            <label>Make Private Playlist:  <input id="playlist-private" type="checkbox"/></label>
+            <br>
+            <button id="playlist-button" disabled onclick="createPlaylist()">Create a new Private Playlist</button>
+            <br>
+            <label>Current Playlist Id: <input id="playlist-id" value='' type="text" readonly/></label>
+            <br>
+            <label>Channel Id: <input id="channel-id" value='' type="text"/></label>
+            <br>
+            <label>Search: <input id="keywords" value='' type="text"/></label>
+            <br>
+            <label>Limit Search to Title: <input id="limitToTitle" type="checkbox"/></label>
+            <br>
+            <button onclick="searchForVideos()">Add to current playlist</button>
+          </div>
+          <span>Playlist: <span id="playlist-title"></span></span>
+          <div>Description: <p id="playlist-description">No description yet.</p><div>
+          <div id="playlist-container">
+            <span id="status">No Videos</span>
+          </div>
+        </section>
+        <footer>
+          <p>This project is maintained by <a href="https://github.com/Luxocracy">Luxocracy</a></p>
+          <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+        </footer>
+      </div>
     </div>
     <script src="javascripts/scale.fix.js"></script>
     <!-- Custom Scripts -->
