@@ -135,19 +135,17 @@ function addToPlaylist(videoId, videoSnippet, callback) {
   });
   request.execute(function(response) {
     var container   = $(document.querySelector('template').content).find('.yt-video').clone();
-    var channelName = videoSnippet.channelTitle;
-    var videoTitle  = videoSnippet.title;
     var thumbnail   = videoSnippet.thumbnails.default;
     var meta        = timeSince(new Date(videoSnippet.publishedAt));
-    var description = videoSnippet.description;
+
     $(container).find('.yt-thumbnail').append('<img src="'+ thumbnail.url  +'" width="'+ thumbnail.width +'" height="'+ thumbnail.height +'">').end()
-    .find('.yt-title').append('<a href="https://www.youtube.com/watch?='+ videoId +'">'+ videoTitle +'</a>').end()
-    .find('.yt-channel').append('by <a href="https://www.youtube.com/user/'+ channelName +'">'+ channelName +'</a>').end()
+    .find('.yt-title').append('<a href="https://www.youtube.com/watch?='+ videoId +'">'+ videoSnippet.title +'</a>').end()
+    .find('.yt-channel').append('by <a href="https://www.youtube.com/user/'+ videoSnippet.channelTitle +'">'+ videoSnippet.channelTitle +'</a>').end()
     .find('.yt-meta').append('<span>'+ meta +'</span>').end()
-    .find('.yt-description').append('<div>'+ description +'</div>');
+    .find('.yt-description').append('<div>'+ videoSnippet.description +'</div>');
+
     $('#playlist-container').find('#status').remove().end().prepend(container)
-    // $('#status').html('<pre>' + JSON.stringify(response.result) + '</pre>');
-    callback(true);
+    if(typeof callback === 'function') callback();
   });
 }
 
