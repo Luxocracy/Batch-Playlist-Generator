@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="stylesheets/github-light.css">
     <meta name="viewport" content="width=device-width">
     <script>
-    console.log(window.location.host, window.location.protocol);
       if(window.location.host === "luxocracy.github.io" && window.location.protocol !== "https:") window.location.protocol = "https";
     </script>
     <!--[if lt IE 9]>
@@ -36,8 +35,7 @@
            <li>The search is not 100% accurate and may miss some videos or add unrelated ones, limiting search to the title may help but it still isn't perfect.</li>
         </ul>
 
-        <p class="view"><a href="https://github.com/Luxocracy/Batch-Playlist-Generator">View the Project on GitHub <small>Luxocracy/Batch-Playlist-Generator</small></a></p>
-
+        <!-- <p class="view"><a href="https://github.com/Luxocracy/Batch-Playlist-Generator">View the Project on GitHub <small>Luxocracy/Batch-Playlist-Generator</small></a></p> -->
 
         <ul>
           <li><a href="https://github.com/Luxocracy/Batch-Playlist-Generator/zipball/master">Download <strong>ZIP File</strong></a></li>
@@ -52,27 +50,23 @@
           Please <a href="#" id="login-link">authorize</a> to continue.
         </div>
         <div class="post-auth" style="display: none">
-          <div id="buttons">
-            <label>Playlist Title: <input id="playlist-title" value='' type="text"/></label>
-            <br>
-            <label>Make Private Playlist:  <input id="playlist-private" type="checkbox"/></label>
-            <br>
-            <button id="playlist-button" disabled onclick="createPlaylist()">Create a new Private Playlist</button>
-            <br>
-            <label>Current Playlist Id: <input id="playlist-id" value='' type="text" readonly/></label>
-            <br>
-            <label>Channel Id: <input id="channel-id" value='' type="text"/></label>
-            <br>
-            <label>Search: <input id="keywords" value='' type="text"/></label>
-            <br>
-            <label>Limit Search to Title: <input id="limitToTitle" type="checkbox"/></label>
-            <br>
-            <button onclick="searchForVideos()">Add to current playlist</button>
+          <div id="options">
+            <div class="pre-playlist">
+              <div class="option-wrapper"><div class="left"><label>Playlist Title: </label></div><div class="right"><input id="playlist-name" value='' type="text"/><input id="playlist-private" type="checkbox"/>Private Playlist</div></div>
+              <div class="option-wrapper"><button id="playlist-button" disabled onclick="createPlaylist()">Create a new Playlist</button></div>
+            </div>
+            <div class="post-playlist" style="display: none">
+              <div class="option-wrapper"><div class="left"><label>Current Playlist Id: </label></div><div class="right"><input id="playlist-id" value='' type="text" readonly/> <a id="playlist-link" href="#" target="_blank">Link to Playlist</a></div></div>
+              <div class="option-wrapper"><div class="left"><label>Channel Id: </label></div><div class="right"><input id="channel-id" value='' type="text"/></div></div>
+              <div class="option-wrapper"><div class="left"><label>Search: </label></div><div class="right"><input id="keywords" value='' type="text"/><input id="limitToTitle" type="checkbox"/>Limit Search to Title</div></div>
+              <div class="option-wrapper"><button onclick="searchForVideos()">Add to current playlist</button></div>
+            </div>
           </div>
-          <span>Playlist: <span id="playlist-title"></span></span>
-          <div>Description: <p id="playlist-description">No description yet.</p><div>
+          <span><b>Title: </b><span id="playlist-title">No title yet.</span></span>
+          <div><b>Description</b><p id="playlist-description">No description yet.</p></div>
           <div id="playlist-container">
-            <span id="status">No Videos</span>
+            <b>Videos</b>
+            <p id="status">No videos added yet.</p>
           </div>
         </section>
         <footer>

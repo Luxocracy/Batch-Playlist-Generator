@@ -1,5 +1,6 @@
 // Define some variables used to remember state.
-var playlistId, channelId;
+var playlistId;
+var playlistItems = {};
 
 // After the API loads, call a function to enable the playlist creation form.
 function handleAPILoaded() {
@@ -13,14 +14,14 @@ function enableForm() {
 
 // Create a playlist.
 function createPlaylist() {
-  var title = $('#playlist-title').val();
+  var title = $('#playlist-name').val();
   var privacyStatus = ($('#playlist-private')[0].checked) ? 'private':'public';
   var request = gapi.client.youtube.playlists.insert({
     part: 'snippet,status',
     resource: {
       snippet: {
         title: title,
-        description: 'Playlist generated using the YouTube API via the "Youtube Series Playlist Generator"(https://luxocracy.github.io/YouTube-Series-Playlist-Generator)'
+        description: 'Playlist generated using the YouTube API and the "Youtube Series Playlist Generator"(https://luxocracy.github.io/YouTube-Series-Playlist-Generator)'
       },
       status: {
         privacyStatus: privacyStatus
@@ -31,7 +32,11 @@ function createPlaylist() {
     var result = response.result;
     if (result) {
       playlistId = result.id;
+      playlistItems = {};
+      $('.pre-playlist').hide();
+      $('.post-playlist').show();
       $('#playlist-id').val(playlistId);
+      $('#playlist-link').attr('href', 'https://www.youtube.com/playlist?list='+playlistId);
       $('#playlist-title').html(result.snippet.title);
       $('#playlist-description').html(result.snippet.description);
     } else {
@@ -41,6 +46,7 @@ function createPlaylist() {
 }
 
 function getChannelId(username, callback) {
+  if(!username) callback(false);
   var details = {
     part: 'id',
     forUsername: username
@@ -53,8 +59,8 @@ function getChannelId(username, callback) {
 
 // Add a video ID specified in the form to the playlist.
 function searchForVideos() {
-  if($('#keywords').val() === "" || $('#channel-id').val() === "") {
-    console.error('All fields required.');
+  if($('#keywords').val() === "") {
+    console.error('You need to enter a search term.');
     return;
   }
   getChannelId($('#channel-id').val(), function(channelId) {
@@ -62,18 +68,30 @@ function searchForVideos() {
   });
 }
 
-function videoSearch(keywords, channelId, titleOnly) {
-  var result = [];
+function videoSearch(searchValue, channelId, titleOnly) {
+  var result  = [];
+  var match   = "";
+  var exclude = "";
+  searchValue = searchValue.match(/([^\s"]+|"[^"]*")+/g);
+
+	for(var i=0; i < searchValue.length; i++) {
+		if(searchValue[i].match('^-')) {
+			exclude += " "+searchValue[i];	//Add to Exclusions
+		} else {
+      match += " "+searchValue[i];  //Add to Matches
+		}
+	}
+
   var query = function(nextPageToken) {
     var details = {
-      q: (titleOnly) ? 'allintitle:"'+ keywords +'"':keywords,
+      q: (titleOnly) ? 'allintitle:\''+ match +'\''+ exclude:match + exclude,
       part: 'snippet',
       type: 'video',
       order: 'date',
-      channelId: channelId,
       maxResults: 50
     }
 
+    if(channelId) details['channelId'] = channelId;
     if(nextPageToken) details['pageToken'] = nextPageToken;
 
     var request = gapi.client.youtube.search.list(details);
@@ -120,6 +138,14 @@ function addVideoToPlaylist() {
 // start and stop the video at specific times when the video is played as
 // part of the playlist. However, these values are not set in this example.
 function addToPlaylist(videoId, videoSnippet, callback) {
+  // Check for duplicate
+  if(playlistItems[videoId]) {
+    if(typeof callback === 'function') callback();
+    return;
+  } else {
+    playlistItems[videoId] = true;
+  }
+
   var details = {
     videoId: videoId,
     kind: 'youtube#video'
@@ -144,7 +170,8 @@ function addToPlaylist(videoId, videoSnippet, callback) {
     .find('.yt-meta').append('<span>'+ meta +'</span>').end()
     .find('.yt-description').append('<div>'+ videoSnippet.description +'</div>');
 
-    $('#playlist-container').find('#status').remove().end().prepend(container)
+    if($('#playlist-container').find('#status')) $('#playlist-container').find('#status').empty().attr('id', 'video-container');
+    $('#playlist-container').find('#video-container').prepend(container);
     if(typeof callback === 'function') callback();
   });
 }
