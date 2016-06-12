@@ -351,6 +351,14 @@ ul.normal li {
   height: initial;
 }
 
+.hidden {
+  display: none;
+}
+
+.option-wrapper {
+  padding: 2px;
+}
+
 .yt-video-wrapper {
   white-space: nowrap;
 }
@@ -373,5 +381,5 @@ ul.normal li {
 
 .yt-meta, .yt-channel {
     display: inline-block;
-    margin-right: 5px;
+    /*margin-right: 5px;*/
 }

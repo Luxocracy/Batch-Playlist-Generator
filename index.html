@@ -52,28 +52,57 @@
         <div class="post-auth" style="display: none">
           <div id="options">
             <div class="pre-playlist">
-              <div class="option-wrapper"><div class="left"><label>Playlist Title: </label></div><div class="right"><input id="playlist-name" value='' type="text"/><input id="playlist-private" type="checkbox"/>Private Playlist</div></div>
-              <div class="option-wrapper"><button id="playlist-button" disabled onclick="createPlaylist()">Create a new Playlist</button></div>
+              <div class="option-wrapper">
+                <button class="playlist-button" disabled onclick="createPlaylist()">Create a new Playlist</button>
+                <button class="playlist-button" disabled onclick="importPlaylistList()">Import existing Playlist</button>
+              </div>
+            </div>
+            <div class="create-playlist" style="display: none">
+              <div class="option-wrapper">
+                <div><label>Playlist Title: </label></div>
+                <div><input id="playlist-name" value='' type="text"/><input id="playlist-private" type="checkbox"/>Private Playlist</div>
+              </div>
+              <div class="option-wrapper"><button class="playlist-button" disabled onclick="createPlaylist()">Create Playlist</button></div>
+            </div>
+            <div class="import-playlist" style="display: none">
+              <div class="option-wrapper">
+                <div><label>Choose Playlist: </label></div>
+                <div>
+                  <select id="playlist-items">
+                  </select>
+                </div>
+              </div>
+              <div class="option-wrapper"><button class="playlist-button" disabled onclick="importPlaylist()">Import Playlist</button></div>
             </div>
             <div class="post-playlist" style="display: none">
-              <div class="option-wrapper"><div class="left"><label>Current Playlist Id: </label></div><div class="right"><input id="playlist-id" value='' type="text" readonly/> <a id="playlist-link" href="#" target="_blank">Link to Playlist</a></div></div>
-              <div class="option-wrapper"><div class="left"><label>Channel Id: </label></div><div class="right"><input id="channel-id" value='' type="text"/></div></div>
-              <div class="option-wrapper"><div class="left"><label>Search: </label></div><div class="right"><input id="keywords" value='' type="text"/><input id="limitToTitle" type="checkbox"/>Limit Search to Title</div></div>
+              <div class="option-wrapper">
+                <div><label>Current Playlist Id: </label></div>
+                <div><input id="playlist-id" value='' type="text" readonly/> <a id="playlist-link" href="#" target="_blank">Link to Playlist</a></div>
+              </div>
+              <div class="option-wrapper">
+                <div><label>Channel Name: </label></div>
+                <div><input id="channel-id" value='' type="text"/></div>
+              </div>
+              <div class="option-wrapper">
+                <div class="search-query"><label>Search: </label></div>
+                <div><input id="keywords" value='' type="text"/><input id="limitToTitle" type="checkbox"/>Limit Search to Title</div>
+              </div>
               <div class="option-wrapper"><button onclick="searchForVideos()">Add to current playlist</button></div>
             </div>
           </div>
+          <br>
           <span><b>Title: </b><span id="playlist-title">No title yet.</span></span>
           <div><b>Description</b><p id="playlist-description">No description yet.</p></div>
           <div id="playlist-container">
             <b>Videos</b>
             <p id="status">No videos added yet.</p>
           </div>
-        </section>
-        <footer>
-          <p>This project is maintained by <a href="https://github.com/Luxocracy">Luxocracy</a></p>
-          <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-        </footer>
-      </div>
+        </div>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/Luxocracy">Luxocracy</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
     <!-- Custom Scripts -->
