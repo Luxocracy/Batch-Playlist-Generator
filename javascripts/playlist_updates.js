@@ -2,6 +2,7 @@
 var playlistId;
 var playlistItems = {};
 var playlists = {};
+var episodeNumbers = [];
 
 // After the API loads, call a function to enable the playlist creation form.
 function handleAPILoaded() {
@@ -56,8 +57,8 @@ function createPlaylist() {
   });
 }
 
-// Import a playlist
-function importPlaylistList() {
+// Import a list of your playlists
+function importPlaylists() {
   disableForm();
   $('.pre-playlist').hide();
   $('.import-playlist').show();
@@ -88,7 +89,7 @@ function importPlaylistList() {
 }
 
 // Get playlist
-function importPlaylist() {
+function getPlaylist() {
   disableForm();
   playlistId  = $('#playlist-items').val();
   var result  = playlists[playlistId];
@@ -209,6 +210,7 @@ var loopAddToPlaylist = {
       } else {
         console.log('Ran out of video IDs while adding them to the playlist.');
         this.status = null;
+        getMissingEpisodes();
       }
     }.bind(this));
   }
@@ -249,9 +251,13 @@ function appendVideo(videoId, videoSnippet, callback) {
   var thumbnail     = videoSnippet.thumbnails.default;
   var meta          = timeSince(new Date(videoSnippet.publishedAt));
   var channelPrefix = (!callback) ? 'added to playlist by ':'by ';
+  var videoUrl      = 'https://www.youtube.com/watch?v=' + videoId;
+  var number        = videoSnippet.title.match(/[0-9]+/g);
 
-  $(container).find('.yt-thumbnail').append('<img src="'+ thumbnail.url  +'" width="'+ thumbnail.width +'" height="'+ thumbnail.height +'">').end()
-  .find('.yt-title').append('<a href="https://www.youtube.com/watch?='+ videoId +'">'+ videoSnippet.title +'</a>').end()
+  if(number) episodeNumbers.push(parseInt(number[number.length-1])); // Add episode number to global array
+
+  $(container).find('.yt-thumbnail').append('<a href="'+ videoUrl +'"><img src="'+ thumbnail.url  +'" width="'+ thumbnail.width +'" height="'+ thumbnail.height +'"></a>').end()
+  .find('.yt-title').append('<a href="'+ videoUrl +'">'+ videoSnippet.title +'</a>').end()
   .find('.yt-channel').append(channelPrefix + '<a href="https://www.youtube.com/user/'+ videoSnippet.channelTitle +'">'+ videoSnippet.channelTitle +'</a>').end()
   .find('.yt-meta').append('<span>'+ meta +'</span>').end()
   .find('.yt-description').append('<div>'+ videoSnippet.description +'</div>');
@@ -259,6 +265,25 @@ function appendVideo(videoId, videoSnippet, callback) {
   if($('#playlist-container').find('#status')) $('#playlist-container').find('#status').empty().attr('id', 'video-container');
   $('#playlist-container').find('#video-container').prepend(container);
   if(typeof callback === 'function') callback();
+}
+
+function getMissingEpisodes() {
+  var missing = [];
+  var lastEpisode  = Math.max.apply(null, episodeNumbers);
+
+  // Fill missing array
+  for(var i=0; i < lastEpisode; i++) {
+    missing[i] = i+1;
+  }
+
+  // Remove existing episodes
+  for(var i=0; i < episodeNumbers.length; i++) {
+    var pos = missing.indexOf(episodeNumbers[i]);
+    if(pos !== -1) missing.splice(pos, 1);
+  }
+
+  $('#errors').empty();
+  if(missing.length > 0) $('#errors').append('<span>Potentially missing episodes: '+ missing +'</span>');
 }
 
 function timeSince(date) {
@@ -286,4 +311,20 @@ function timeSince(date) {
     return interval + " minutes ago";
   }
   return Math.floor(seconds) + " seconds ago";
+}
+
+function naturalCompare(a, b) {
+	var ax = [], bx = [];
+
+	a.replace(/(\d+)|(\D+)/g, function(_, $1, $2) { ax.push([$1 || Infinity, $2 || ""]) });
+	b.replace(/(\d+)|(\D+)/g, function(_, $1, $2) { bx.push([$1 || Infinity, $2 || ""]) });
+
+	while(ax.length && bx.length) {
+			var an = ax.shift();
+			var bn = bx.shift();
+			var nn = (an[0] - bn[0]) || an[1].localeCompare(bn[1]);
+			if(nn) return nn;
+	}
+
+	return ax.length - bx.length;
 }

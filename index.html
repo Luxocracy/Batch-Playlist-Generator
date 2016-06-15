@@ -54,7 +54,7 @@
             <div class="pre-playlist">
               <div class="option-wrapper">
                 <button class="playlist-button" disabled onclick="createPlaylist()">Create a new Playlist</button>
-                <button class="playlist-button" disabled onclick="importPlaylistList()">Import existing Playlist</button>
+                <button class="playlist-button" disabled onclick="importPlaylists()">Import existing Playlist</button>
               </div>
             </div>
             <div class="create-playlist" style="display: none">
@@ -72,7 +72,7 @@
                   </select>
                 </div>
               </div>
-              <div class="option-wrapper"><button class="playlist-button" disabled onclick="importPlaylist()">Import Playlist</button></div>
+              <div class="option-wrapper"><button class="playlist-button" disabled onclick="getPlaylist()">Import Playlist</button></div>
             </div>
             <div class="post-playlist" style="display: none">
               <div class="option-wrapper">
@@ -90,6 +90,7 @@
               <div class="option-wrapper"><button onclick="searchForVideos()">Add to current playlist</button></div>
             </div>
           </div>
+          <div id="errors" style="color:red;"></div>
           <br>
           <span><b>Title: </b><span id="playlist-title">No title yet.</span></span>
           <div><b>Description</b><p id="playlist-description">No description yet.</p></div>
@@ -105,7 +106,6 @@
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
-    <!-- Custom Scripts -->
     <script src="javascripts/jquery-2.2.0.min.js"></script>
     <script src="javascripts/auth.js"></script>
     <script src="javascripts/playlist_updates.js"></script>
