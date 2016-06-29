@@ -88,7 +88,10 @@
                 <div class="search-query"><label>Search: </label></div>
                 <div><input id="keywords" value='' type="text"/><input id="limitToTitle" type="checkbox"/>Limit Search to Title</div>
               </div>
-              <div class="option-wrapper"><button onclick="searchForVideos()">Add to current playlist</button></div>
+              <div class="option-wrapper">
+                <button onclick="searchForVideos()">Add to current playlist</button>
+                <button onclick="resetForm()">Reset & start over</button>
+              </div>
             </div>
           </div>
           <div id="errors" style="color:red;"></div>
@@ -97,7 +100,8 @@
           <div><b>Description</b><p id="playlist-description">No description yet.</p></div>
           <div id="playlist-container">
             <b>Videos</b>
-            <p id="status">No videos added yet.</p>
+            <p id="status"> yet.</p>
+            <p id="video-container" style="display: none"></p>
           </div>
         </div>
       </section>

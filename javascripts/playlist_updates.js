@@ -19,6 +19,23 @@ function disableForm() {
   $('.playlist-button').attr('disabled', true);
 }
 
+// Reset the form
+function resetForm() {
+  // Clear global variables
+  playlistId = undefined;
+  playlistItems = {};
+  playlists = {};
+  episodeNumbers = [];
+
+  $(':input').val('');  // Clear inputs
+  $('#playlist-title').text('No title yet.');
+  $('#playlist-description').text('No description yet.');
+  $('#playlist-items').empty();
+  $('#playlist-container').find('#video-container').empty().hide().end().find('#status').show().text('No videos added yet.');
+  $('#options > div').hide(); // Hide all sections
+  $('.pre-playlist').show();  // Show first section
+}
+
 // Create a playlist.
 function createPlaylist() {
   if($('.pre-playlist').is(':visible')) {
@@ -262,7 +279,7 @@ function appendVideo(videoId, videoSnippet, callback) {
   .find('.yt-meta').append('<span>'+ meta +'</span>').end()
   .find('.yt-description').append('<div>'+ videoSnippet.description +'</div>');
 
-  if($('#playlist-container').find('#status')) $('#playlist-container').find('#status').empty().attr('id', 'video-container');
+  if($('#playlist-container').find('#status')) $('#playlist-container').find('#status').hide().end().find('#video-container').show();
   $('#playlist-container').find('#video-container').prepend(container);
   if(typeof callback === 'function') callback();
 }
