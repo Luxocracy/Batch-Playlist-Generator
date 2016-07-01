@@ -3,6 +3,7 @@ var playlistId;
 var playlistItems = {};
 var playlists = {};
 var episodeNumbers = [];
+var previousSearch = [];
 
 // After the API loads, call a function to enable the playlist creation form.
 function handleAPILoaded() {
@@ -26,6 +27,7 @@ function resetForm() {
   playlistItems = {};
   playlists = {};
   episodeNumbers = [];
+  previousSearch = [];
 
   $(':input').val('');  // Clear inputs
   $('#playlist-title').text('No title yet.');
@@ -62,12 +64,20 @@ function createPlaylist() {
     if(result) {
       playlistId = result.id;
       playlistItems = {};
+      previousSearch = (localStorage[playlistId]) ? JSON.parse(localStorage[playlistId]):[];
       $('.create-playlist').hide();
       $('.post-playlist').show();
       $('#playlist-id').val(playlistId);
       $('#playlist-link').attr('href', 'https://www.youtube.com/playlist?list='+playlistId);
       $('#playlist-title').html(result.snippet.title);
       $('#playlist-description').html(result.snippet.description);
+
+      var stringList = "";
+      for(var i=0; i < previousSearch.length; i++) {
+        stringList += previousSearch[i]+' \n';
+      }
+
+      $('#keywords')[0].attributes.title.value = 'Previous searches for this playlist: \n' + stringList;
     } else {
       $('#status').html('Could not create playlist');
     }
@@ -110,10 +120,18 @@ function getPlaylist() {
   disableForm();
   playlistId  = $('#playlist-items').val();
   var result  = playlists[playlistId];
+  previousSearch = (localStorage[playlistId]) ? JSON.parse(localStorage[playlistId]):[];
   $('#playlist-id').val(playlistId);
   $('#playlist-link').attr('href', 'https://www.youtube.com/playlist?list='+playlistId);
   $('#playlist-title').html(result.snippet.title);
   $('#playlist-description').html(result.snippet.description);
+
+  var stringList = "";
+  for(var i=0; i < previousSearch.length; i++) {
+    stringList += previousSearch[i]+' \n';
+  }
+
+  $('#keywords')[0].attributes.title.value = 'Previous searches for this playlist: \n' + stringList;
 
   var query = function(nextPageToken) {
     var details = {
@@ -176,6 +194,12 @@ function videoSearch(searchValue, channelId, titleOnly) {
   var result  = [];
   var match   = "";
   var exclude = "";
+  var oldSearch = previousSearch.indexOf(searchValue);
+
+  if(oldSearch < 0) {
+    previousSearch.push(searchValue);
+  }
+
   searchValue = searchValue.match(/([^\s"]+|"[^"]*")+/g);
 
 	for(var i=0; i < searchValue.length; i++) {
@@ -200,6 +224,7 @@ function videoSearch(searchValue, channelId, titleOnly) {
 
     var request = gapi.client.youtube.search.list(details);
     request.execute(function(response) {
+      if(!nextPageToken && response.items.length > 0) localStorage[playlistId] = JSON.stringify(previousSearch); // Store search, if videos were found.
       for(var i=0; i < response.items.length; i++) {
         if(!response.items[i].id.videoId) console.log(response.items[i]);
         loopAddToPlaylist.add(response.items[i]);
