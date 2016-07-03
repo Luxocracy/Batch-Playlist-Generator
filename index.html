@@ -45,7 +45,7 @@
         </ul>
       </header>
       <section>
-        <h3>Generate Playlist</h3>
+        <h3>Generate Playlist <a href="#" onclick="resetForm()" style="font-size: 0.8rem;font-weight: 100;">Reset</a></h3>
 
         <div id="login-container" class="pre-auth">This application requires access to your YouTube account.
           Please <a href="#" id="login-link">authorize</a> to continue.
@@ -86,11 +86,15 @@
               </div>
               <div class="option-wrapper">
                 <div class="search-query"><label>Search: </label></div>
-                <div><input id="keywords" value='' type="text" title=""/><input id="limitToTitle" type="checkbox"/>Limit Search to Title</div>
+                <div><input id="keywords" value='' type="text" title="&#13;"/><input id="limitToTitle" type="checkbox"/>Limit Search to Title</div>
+                <div id="oldSearch" style="display: none">
+                  <p>Previous searches for this playlist:</p>
+                  <ul class="normal">
+                  </ul>
+                </div>
               </div>
               <div class="option-wrapper">
                 <button onclick="searchForVideos()">Add to current playlist</button>
-                <button onclick="resetForm()">Reset & start over</button>
               </div>
             </div>
           </div>
@@ -100,7 +104,7 @@
           <div><b>Description</b><p id="playlist-description">No description yet.</p></div>
           <div id="playlist-container">
             <b>Videos</b>
-            <p id="status"> yet.</p>
+            <p id="status">No videos yet.</p>
             <p id="video-container" style="display: none"></p>
           </div>
         </div>

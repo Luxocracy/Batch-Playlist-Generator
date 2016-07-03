@@ -356,6 +356,7 @@ ul.normal li {
 }
 
 .option-wrapper {
+  position: relative;
   padding: 2px;
 }
 
@@ -382,4 +383,25 @@ ul.normal li {
 .yt-meta, .yt-channel {
     display: inline-block;
     /*margin-right: 5px;*/
+}
+
+#oldSearch {
+  position: absolute;
+  z-index: 10;
+  top: 43px;
+  left: 173px;
+  max-width: 250px;
+  padding: 5px;
+  border-radius: 4px;
+  background-color: white;
+  border: 1px solid #b9bbc1;
+  box-shadow: 3px 3px 15px 0px rgba(0,0,0,0.2);
+}
+
+#oldSearch p {
+  margin: 0px;
+}
+
+#oldSearch ul {
+  margin-bottom: 0px;
 }
