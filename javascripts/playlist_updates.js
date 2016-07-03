@@ -28,7 +28,7 @@ var searchBox = {
 }
 
 $('#keywords').off('focus').on('focus', searchBox.enter).off('blur').on('blur', searchBox.leave);
-$('#oldSearch').on('mouseleave', searchBox.leave);
+$('#oldSearch').hover(searchBox.enter, searchBox.leave);
 
 // After the API loads, call a function to enable the playlist creation form.
 function handleAPILoaded() {
