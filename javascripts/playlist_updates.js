@@ -21,6 +21,7 @@ var searchBox = {
     }
   },
   leave: function() {
+    clearTimeout(searchBox.timer);
     if(!$('#keywords').is(':focus') && !$('#oldSearch').is(':hover')) {
       searchBox.timer = setTimeout(searchBox.hide, 500);
     }
