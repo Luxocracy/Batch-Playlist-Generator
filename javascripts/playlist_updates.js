@@ -3,7 +3,11 @@ var playlistId;
 var playlistItems = {};
 var playlists = {};
 var episodeNumbers = [];
-var previousSearch = [];
+var previousSearch = {
+  channel: '',
+  limit: false,
+  array: []
+};
 
 // Listeners
 var searchBox = {
@@ -33,6 +37,7 @@ $('#oldSearch').hover(searchBox.enter, searchBox.leave);
 
 // After the API loads, call a function to enable the playlist creation form.
 function handleAPILoaded() {
+  importPlaylists();
   enableForm();
 }
 
@@ -53,7 +58,11 @@ function resetForm() {
   playlistItems = {};
   playlists = {};
   episodeNumbers = [];
-  previousSearch = [];
+  previousSearch = {
+    channel: '',
+    limit: false,
+    array: []
+  };
 
   $(':input').val('');  // Clear inputs
   $('#playlist-title').text('No title yet.');
@@ -61,13 +70,14 @@ function resetForm() {
   $('#playlist-items').empty();
   $('#playlist-container').find('#video-container').empty().hide().end().find('#status').show().text('No videos added yet.');
   $('#options > div').hide(); // Hide all sections
-  $('.pre-playlist').show();  // Show first section
+  $('.choose-playlist').show();  // Show first section
+  importPlaylists();
 }
 
 // Create a playlist.
 function createPlaylist() {
-  if($('.pre-playlist').is(':visible')) {
-    $('.pre-playlist').hide();
+  if($('.choose-playlist').is(':visible')) {
+    $('.choose-playlist').hide();
     $('.create-playlist').show();
     return;
   }
@@ -90,7 +100,7 @@ function createPlaylist() {
     if(result) {
       playlistId = result.id;
       playlistItems = {};
-      previousSearch = (localStorage[playlistId]) ? JSON.parse(localStorage[playlistId]):[];
+
       $('.create-playlist').hide();
       $('.post-playlist').show();
       $('#playlist-id').val(playlistId);
@@ -99,8 +109,8 @@ function createPlaylist() {
       $('#playlist-description').html(result.snippet.description);
 
       var searchList = "";
-      for(var i=0; i < previousSearch.length; i++) {
-        searchList += "<li>"+previousSearch[i]+"</li>";
+      for(var i=0; i < previousSearch.array.length; i++) {
+        searchList += "<li>"+previousSearch.array[i]+"</li>";
       }
 
       $('#oldSearch ul').empty().append(searchList);
@@ -113,8 +123,6 @@ function createPlaylist() {
 // Import a list of your playlists
 function importPlaylists() {
   disableForm();
-  $('.pre-playlist').hide();
-  $('.import-playlist').show();
 
   var query = function(nextPageToken) {
     var details = {
@@ -146,15 +154,18 @@ function getPlaylist() {
   disableForm();
   playlistId  = $('#playlist-items').val();
   var result  = playlists[playlistId];
-  previousSearch = (localStorage[playlistId]) ? JSON.parse(localStorage[playlistId]):[];
+  previousSearch = (localStorage[playlistId]) ? JSON.parse(localStorage[playlistId]):{ channel: '', array: [] };
+
+  if(!previousSearch.array) previousSearch = { channel: '', limit: false, array: previousSearch };  // Incase the data is stored in the old format, aka, as an array instead of an object.
+
   $('#playlist-id').val(playlistId);
   $('#playlist-link').attr('href', 'https://www.youtube.com/playlist?list='+playlistId);
   $('#playlist-title').html(result.snippet.title);
   $('#playlist-description').html(result.snippet.description);
 
   var searchList = "";
-  for(var i=0; i < previousSearch.length; i++) {
-    searchList += "<li>"+previousSearch[i]+"</li>";
+  for(var i=0; i < previousSearch.array.length; i++) {
+    searchList += "<li>"+previousSearch.array[i]+"</li>";
   }
 
   $('#oldSearch ul').empty().append(searchList);
@@ -180,7 +191,7 @@ function getPlaylist() {
       if(response.nextPageToken) {
         query(response.nextPageToken);
       } else {
-        $('.import-playlist').hide();
+        $('.choose-playlist').hide();
         $('.post-playlist').show();
         enableForm();
       }
@@ -220,11 +231,7 @@ function videoSearch(searchValue, channelId, titleOnly) {
   var result  = [];
   var match   = "";
   var exclude = "";
-  var oldSearch = previousSearch.indexOf(searchValue);
-
-  if(oldSearch < 0) {
-    previousSearch.unshift(searchValue);
-  }
+  var rawSearchValue = searchValue.slice(0);  //Copy the raw search string
 
   searchValue = searchValue.match(/([^\s"]+|"[^"]*")+/g);
 
@@ -250,7 +257,21 @@ function videoSearch(searchValue, channelId, titleOnly) {
 
     var request = gapi.client.youtube.search.list(details);
     request.execute(function(response) {
-      if(!nextPageToken && response.items.length > 0) localStorage[playlistId] = JSON.stringify(previousSearch.slice(0, 5)); // Store search, if videos were found.
+      // Store search, if videos were found.
+      if(!nextPageToken && response.items.length > 0) {
+        // Add search input to array. If it already exists, remove the old value beforehand. *This is to keep the latest successful search first.
+        var oldValueIndex = previousSearch.array.indexOf(rawSearchValue);
+        if(oldValueIndex >= 0) previousSearch.array.splice(oldValueIndex, 1);
+        previousSearch.array.unshift(rawSearchValue);
+
+        previousSearch = {
+          channel: $('#channel-id').val() || '',
+          limit: $('#limitToTitle')[0].checked,
+          array: previousSearch.array.slice(0, 5)
+        };
+
+        localStorage[playlistId] = JSON.stringify(previousSearch);
+      }
       for(var i=0; i < response.items.length; i++) {
         if(!response.items[i].id.videoId) console.log(response.items[i]);
         loopAddToPlaylist.add(response.items[i]);

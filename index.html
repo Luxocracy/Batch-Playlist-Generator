@@ -52,10 +52,18 @@
         </div>
         <div class="post-auth" style="display: none">
           <div id="options">
-            <div class="pre-playlist">
+            <div class="choose-playlist">
               <div class="option-wrapper">
-                <button class="playlist-button" disabled onclick="createPlaylist()">Create a new Playlist</button>
-                <button class="playlist-button" disabled onclick="importPlaylists()">Import existing Playlist</button>
+                <div><label>Choose Playlist: </label></div>
+                <div>
+                  <select id="playlist-items">
+                  </select>
+                </div>
+              </div>
+              <div class="option-wrapper">
+                <button class="playlist-button" disabled onclick="getPlaylist()">Import Playlist</button>
+                <button class="playlist-button" disabled onclick="createPlaylist()">New Playlist</button>
+                <!-- <button class="playlist-button" disabled onclick="autoUpdatePlaylist()">Auto-Update Playlist</button> -->
               </div>
             </div>
             <div class="create-playlist" style="display: none">
@@ -64,16 +72,6 @@
                 <div><input id="playlist-name" value='' type="text"/><input id="playlist-private" type="checkbox"/>Private Playlist</div>
               </div>
               <div class="option-wrapper"><button class="playlist-button" disabled onclick="createPlaylist()">Create Playlist</button></div>
-            </div>
-            <div class="import-playlist" style="display: none">
-              <div class="option-wrapper">
-                <div><label>Choose Playlist: </label></div>
-                <div>
-                  <select id="playlist-items">
-                  </select>
-                </div>
-              </div>
-              <div class="option-wrapper"><button class="playlist-button" disabled onclick="getPlaylist()">Import Playlist</button></div>
             </div>
             <div class="post-playlist" style="display: none">
               <div class="option-wrapper">
