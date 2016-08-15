@@ -74,6 +74,53 @@ function resetForm() {
   importPlaylists();
 }
 
+// Check if current playlist can use the auto update function.
+$('#playlist-items').off('change').on('change', validateAutoUpdate);
+function validateAutoUpdate(reset) {
+  var selectId = $('#playlist-items').val();
+  var select = (localStorage[selectId]) ? JSON.parse(localStorage[selectId]):{ channel: '', array: [] };
+  var keywords = select.array[0];
+  var channelName = select.channel;
+  var limit = select.limit;
+
+  // If any variable is missing, disable the button. Otherwise enable it.
+  if(!keywords || !channelName || limit === undefined) {
+    $('#auto-update').attr('disabled', true);
+  } else {
+    $('#auto-update').attr('disabled', false);
+  }
+}
+
+// Import a list of your playlists
+function importPlaylists() {
+  disableForm();
+
+  var query = function(nextPageToken) {
+    var details = {
+      part: 'snippet',
+      maxResults: 50,
+      mine: true
+    }
+
+    if(nextPageToken) details['pageToken'] = nextPageToken;
+
+    var request = gapi.client.youtube.playlists.list(details);
+    request.execute(function(response) {
+      for(var i=0; i < response.items.length; i++) {
+        playlists[response.items[i].id] = response.items[i];
+        $('#playlist-items').append('<option value="'+ response.items[i].id +'">'+ response.items[i].snippet.title +'</option>');
+      }
+      if(response.nextPageToken) {
+        query(response.nextPageToken);
+      } else {
+        enableForm();
+        validateAutoUpdate(false);
+      }
+    });
+  }
+  query();  // First init
+}
+
 // Create a playlist.
 function createPlaylist() {
   if($('.choose-playlist').is(':visible')) {
@@ -120,37 +167,8 @@ function createPlaylist() {
   });
 }
 
-// Import a list of your playlists
-function importPlaylists() {
-  disableForm();
-
-  var query = function(nextPageToken) {
-    var details = {
-      part: 'snippet',
-      maxResults: 50,
-      mine: true
-    }
-
-    if(nextPageToken) details['pageToken'] = nextPageToken;
-
-    var request = gapi.client.youtube.playlists.list(details);
-    request.execute(function(response) {
-      for(var i=0; i < response.items.length; i++) {
-        playlists[response.items[i].id] = response.items[i];
-        $('#playlist-items').append('<option value="'+ response.items[i].id +'">'+ response.items[i].snippet.title +'</option>');
-      }
-      if(response.nextPageToken) {
-        query(response.nextPageToken);
-      } else {
-        enableForm();
-      }
-    });
-  }
-  query();  // First init
-}
-
-// Get playlist
-function getPlaylist() {
+// Get/import playlist
+function getPlaylist(callback) {
   disableForm();
   playlistId  = $('#playlist-items').val();
   var result  = playlists[playlistId];
@@ -186,13 +204,17 @@ function getPlaylist() {
         playlistItems[response.items[i].snippet.resourceId.videoId] = true;
         var videoSnippet = response.items[i].snippet;
         var videoId = videoSnippet.resourceId.videoId;
-        appendVideo(videoId, videoSnippet);
+        if(!callback) appendVideo(videoId, videoSnippet);
       }
       if(response.nextPageToken) {
         query(response.nextPageToken);
       } else {
-        $('.choose-playlist').hide();
-        $('.post-playlist').show();
+        if(!callback) {
+          $('.choose-playlist').hide();
+          $('.post-playlist').show();
+        } else {
+          callback();
+        }
         enableForm();
       }
     });
@@ -200,6 +222,25 @@ function getPlaylist() {
   query();  // First init
 }
 
+// Automatically update playlist
+function autoUpdatePlaylist() {
+  getPlaylist(function() {
+    var keywords = previousSearch.array[0];
+    var channelName = previousSearch.channel;
+    var limit = previousSearch.limit;
+
+    if(!keywords || !channelName || limit === undefined) {
+      console.error('Could not update the playlist because of missing variables.');
+      return;
+    }
+
+    $('#playlist-container #status').text('Searching for Videos to add...');
+
+    searchForVideos(keywords, channelName, limit, true);
+  });
+}
+
+// Get the actual ID of a channel instead of the channel name/url
 function getChannelId(username, callback) {
   if(!username) callback(false);
   var details = {
@@ -213,8 +254,12 @@ function getChannelId(username, callback) {
 }
 
 // Add a video ID specified in the form to the playlist.
-function searchForVideos() {
-  if($('#keywords').val() === "") {
+function searchForVideos(keywords, channelName, limit, silent) {
+  keywords = keywords || $('#keywords').val();
+  channelName = channelName || $('#channel-id').val();
+  limit = limit || $('#limitToTitle')[0].checked;
+
+  if(keywords === "") {
     console.error('You need to enter a search term.');
     $('.search-query').append('<span style="color: red; font-size: 0.84em;"> You need to enter a search term.</span>');
     setTimeout(function() {
@@ -222,12 +267,12 @@ function searchForVideos() {
     }, 2500);
     return;
   }
-  getChannelId($('#channel-id').val(), function(channelId) {
-    videoSearch($('#keywords').val(), channelId, $('#limitToTitle')[0].checked);
+  getChannelId(channelName, function(channelId) {
+    videoSearch(keywords, channelId, limit, silent);
   });
 }
 
-function videoSearch(searchValue, channelId, titleOnly) {
+function videoSearch(searchValue, channelId, titleOnly, silent) {
   var result  = [];
   var match   = "";
   var exclude = "";
@@ -270,11 +315,11 @@ function videoSearch(searchValue, channelId, titleOnly) {
           array: previousSearch.array.slice(0, 5)
         };
 
-        localStorage[playlistId] = JSON.stringify(previousSearch);
+        if(!silent) localStorage[playlistId] = JSON.stringify(previousSearch);
       }
       for(var i=0; i < response.items.length; i++) {
         if(!response.items[i].id.videoId) console.log(response.items[i]);
-        loopAddToPlaylist.add(response.items[i]);
+        loopAddToPlaylist.add(response.items[i], silent);
       }
       if(response.nextPageToken) query(response.nextPageToken);
     });
@@ -285,18 +330,26 @@ function videoSearch(searchValue, channelId, titleOnly) {
 var loopAddToPlaylist = {
   queue: [],
   status: null,
-  add: function(item) {
+  amount: 0,
+  silent: false,
+  add: function(item, silent) {
+    this.silent = silent || false;
     this.queue.push(item);
-    if(!this.status) this.execute();
+    if(!this.status) {
+      this.amount = 0;
+      this.execute();
+    }
   },
   execute: function() {
     this.status = 'working';
     var video = this.queue.shift();
     // console.log('Video ID:', video);
-    addToPlaylist(video.id.videoId, video.snippet, function() {
+    addToPlaylist(video.id.videoId, video.snippet, this.silent, function(success) {
+      if(success) this.amount++;
       if(this.queue.length > 0) {
         this.execute();
       } else {
+        if(this.silent) $('#playlist-container #status').text('Successfully added '+ this.amount +' item(s) to the playlist.');
         console.log('Ran out of video IDs while adding them to the playlist.');
         this.status = null;
         getMissingEpisodes();
@@ -308,10 +361,10 @@ var loopAddToPlaylist = {
 // Add a video to a playlist. The "startPos" and "endPos" values let you
 // start and stop the video at specific times when the video is played as
 // part of the playlist. However, these values are not set in this example.
-function addToPlaylist(videoId, videoSnippet, callback) {
+function addToPlaylist(videoId, videoSnippet, silent, callback) {
   // Check for duplicate
   if(playlistItems[videoId]) {
-    if(typeof callback === 'function') callback();
+    if(typeof callback === 'function') callback(false);
     return;
   } else {
     playlistItems[videoId] = true;
@@ -331,7 +384,11 @@ function addToPlaylist(videoId, videoSnippet, callback) {
     }
   });
   request.execute(function(response) {
-    appendVideo(videoId, videoSnippet, callback);
+    if(!silent) {
+      appendVideo(videoId, videoSnippet, callback);
+    } else {
+      callback(true);
+    }
   });
 }
 
