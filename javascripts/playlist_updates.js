@@ -85,9 +85,9 @@ function validateAutoUpdate(reset) {
 
   // If any variable is missing, disable the button. Otherwise enable it.
   if(!keywords || !channelName || limit === undefined) {
-    $('#auto-update').attr('disabled', true);
+    $('#smart-update').attr('disabled', true);
   } else {
-    $('#auto-update').attr('disabled', false);
+    $('#smart-update').attr('disabled', false);
   }
 }
 
@@ -223,7 +223,7 @@ function getPlaylist(callback) {
 }
 
 // Automatically update playlist
-function autoUpdatePlaylist() {
+function smartUpdatePlaylist() {
   getPlaylist(function() {
     var keywords = previousSearch.array[0];
     var channelName = previousSearch.channel;
