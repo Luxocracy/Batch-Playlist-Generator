@@ -127,7 +127,7 @@ function importPlaylists() {
 
 // Create a playlist.
 function createPlaylist() {
-  resetForm(true);  // Reset any left over form data.
+  resetForm(true);  // Reset global variables to avoid issues.
   if($('.choose-playlist').is(':visible')) {
     $('.choose-playlist').hide();
     $('.create-playlist').show();
