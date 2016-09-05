@@ -52,7 +52,7 @@ function disableForm() {
 }
 
 // Reset the form
-function resetForm() {
+function resetForm(clearGlobals) {
   // Clear global variables
   playlistId = undefined;
   playlistItems = {};
@@ -63,6 +63,8 @@ function resetForm() {
     limit: false,
     array: []
   };
+
+  if(clearGlobals) return; // If the reset is called to only clear global variables, return.
 
   $(':input').val('');  // Clear inputs
   $('#playlist-title').text('No title yet.');
@@ -76,6 +78,8 @@ function resetForm() {
 
 // Check if current playlist can use the auto update function.
 $('#playlist-items').off('change').on('change', validateAutoUpdate);
+
+// Validate auto update properties
 function validateAutoUpdate(reset) {
   var selectId = $('#playlist-items').val();
   var select = (localStorage[selectId]) ? JSON.parse(localStorage[selectId]):{ channel: '', array: [] };
@@ -123,6 +127,7 @@ function importPlaylists() {
 
 // Create a playlist.
 function createPlaylist() {
+  resetForm(true);  // Reset any left over form data.
   if($('.choose-playlist').is(':visible')) {
     $('.choose-playlist').hide();
     $('.create-playlist').show();
