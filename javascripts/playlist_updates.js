@@ -254,7 +254,8 @@ function getChannelId(username, callback) {
   }
   var request = gapi.client.youtube.channels.list(details);
   request.execute(function(response) {
-    callback(response.items[0].id);
+    var id = (response.items.length === 0) ? username:response.items[0].id;
+    callback(id);
   });
 }
 
@@ -307,8 +308,9 @@ function videoSearch(searchValue, channelId, titleOnly, silent) {
 
     var request = gapi.client.youtube.search.list(details);
     request.execute(function(response) {
+      var itemLength = (response.items) ? response.items.length:0;
       // Store search, if videos were found.
-      if(!nextPageToken && response.items.length > 0) {
+      if(!nextPageToken && itemLength > 0) {
         // Add search input to array. If it already exists, remove the old value beforehand. *This is to keep the latest successful search first.
         var oldValueIndex = previousSearch.array.indexOf(rawSearchValue);
         if(oldValueIndex >= 0) previousSearch.array.splice(oldValueIndex, 1);
@@ -322,7 +324,7 @@ function videoSearch(searchValue, channelId, titleOnly, silent) {
 
         if(!silent) localStorage[playlistId] = JSON.stringify(previousSearch);
       }
-      for(var i=0; i < response.items.length; i++) {
+      for(var i=0; i < itemLength; i++) {
         if(!response.items[i].id.videoId) console.log(response.items[i]);
         loopAddToPlaylist.add(response.items[i], silent);
       }
@@ -434,7 +436,7 @@ function getMissingEpisodes() {
   }
 
   $('#errors').empty();
-  if(missing.length > 0) $('#errors').append('<span>Potentially missing episodes: '+ missing +'</span>');
+  if(missing.length > 0) $('#errors').append('<span style="overflow-wrap: break-word;">Potentially missing episodes: '+ missing +'</span>');
 }
 
 function timeSince(date) {
