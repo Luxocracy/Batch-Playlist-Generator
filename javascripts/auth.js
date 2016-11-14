@@ -27,6 +27,15 @@ function checkAuth() {
   }, handleAuthResult);
 }
 
+// Revoke Authorization, incase the user wants to change account or simply revoke the access from the app.
+function revokeAuth() {
+  var xhr = new XMLHttpRequest();
+  var token = gapi.auth.getToken().access_token;
+	xhr.open('GET', 'https://accounts.google.com/o/oauth2/revoke?token='+ token);
+	xhr.responseType = 'json';
+	xhr.send();
+}
+
 // Handle the result of a gapi.auth.authorize() call.
 function handleAuthResult(authResult) {
   if (authResult && !authResult.error) {

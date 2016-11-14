@@ -110,6 +110,11 @@ function importPlaylists() {
 
     var request = gapi.client.youtube.playlists.list(details);
     request.execute(function(response) {
+      if(response.error) {
+        revokeAuth();
+        console.error('An Error occured while attempting to access the account, revoking access token to prevent any issues from occuring. Error message: ', response.error.message);
+        return;
+      }
       for(var i=0; i < response.items.length; i++) {
         playlists[response.items[i].id] = response.items[i];
         $('#playlist-items').append('<option value="'+ response.items[i].id +'">'+ response.items[i].snippet.title +'</option>');
