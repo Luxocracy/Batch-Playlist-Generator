@@ -2,7 +2,7 @@
 // at https://console.developers.google.com/.
 // If you run this code from a server other than https://luxocracy.github.io,
 // you need to register your own client ID.
-var OAUTH2_CLIENT_ID = '852668166661-6g7p3sdkem5v98onl4q5eildp5a8kknv.apps.googleusercontent.com';
+var OAUTH2_CLIENT_ID = '852668166661-f5ur7k9kr4fv5o5v39tiht54er3q9q4m.apps.googleusercontent.com';
 var OAUTH2_SCOPES = [
   'https://www.googleapis.com/auth/youtube'
 ];
