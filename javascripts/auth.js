@@ -2,7 +2,7 @@
 // at https://console.developers.google.com/.
 // If you run this code from a server other than https://luxocracy.github.io,
 // you need to register your own client ID.
-var OAUTH2_CLIENT_ID = '852668166661-f5ur7k9kr4fv5o5v39tiht54er3q9q4m.apps.googleusercontent.com';
+var OAUTH2_CLIENT_ID = '331466715005-bjtlmj7bbnru21ekc5q0pkam2pjj5ak4.apps.googleusercontent.com';
 var OAUTH2_SCOPES = [
   'https://www.googleapis.com/auth/youtube'
 ];
@@ -31,9 +31,9 @@ function checkAuth() {
 function revokeAuth() {
   var xhr = new XMLHttpRequest();
   var token = gapi.auth.getToken().access_token;
-	xhr.open('GET', 'https://accounts.google.com/o/oauth2/revoke?token='+ token);
-	xhr.responseType = 'json';
-	xhr.send();
+  xhr.open('GET', 'https://accounts.google.com/o/oauth2/revoke?token='+ token);
+  xhr.responseType = 'json';
+  xhr.send();
 }
 
 // Handle the result of a gapi.auth.authorize() call.
@@ -64,4 +64,14 @@ function loadAPIClientInterfaces() {
   gapi.client.load('youtube', 'v3', function() {
     handleAPILoaded();
   });
+}
+
+function revokeAccess() {
+  document.cookie = "";
+  try {
+    revokeAuth();
+  } catch(err) {
+    console.error(err);
+  }
+  location.reload();
 }
