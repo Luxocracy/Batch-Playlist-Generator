@@ -113,6 +113,11 @@ function importPlaylists() {
       if(response.error) {
         revokeAuth();
         console.error('An Error occured while attempting to access the account, revoking access token to prevent any issues from occuring. Error message: ', response.error.message);
+        $('#errors').empty();
+        if(response.error) {
+          $('#errors').append(`<span style="overflow-wrap: break-word;">Error: ${response.error.code}: ${response.error.message}</span>`);
+          if(response.error[0] && response.error[0].reason == "quotaExceeded") $('#errors').append(`<span style="overflow-wrap: break-word;">It seems the application reached the Youtube API Quota. I would recommend you clone the repo and <a href="https://developers.google.com/youtube/registering_an_application">setup your own Client ID</a></span>`);
+        }
         return;
       }
       for(var i=0; i < response.items.length; i++) {
@@ -396,6 +401,11 @@ function addToPlaylist(videoId, videoSnippet, silent, callback) {
     }
   });
   request.execute(function(response) {
+    $('#errors').empty();
+    if(response.error) {
+      $('#errors').append(`<span style="overflow-wrap: break-word;">${response.error.code}: ${response.error.message}</span>`);
+      if(response.error[0] && response.error[0].reason == "quotaExceeded") $('#errors').append(`<span style="overflow-wrap: break-word;">It seems the application reached the Youtube API Quota. I would recommend you clone the repo and <a href="https://developers.google.com/youtube/registering_an_application">setup your own Client ID</a></span>`);
+    }
     if(!silent) {
       appendVideo(videoId, videoSnippet, callback);
     } else {

@@ -67,7 +67,7 @@ function loadAPIClientInterfaces() {
 }
 
 function revokeAccess() {
-  document.cookie = "";
+  document.cookie = 'G_ENABLED_IDPS=; expires='+new Date(0).toUTCString() +'; path=/; domain=.luxocracy.github.io'; // Clear cookie
   try {
     revokeAuth();
   } catch(err) {
